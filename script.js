@@ -67,7 +67,7 @@ function clickHandler(d, i) {
 }
 
 defaultView = true
-var color = d3.scaleOrdinal(d3.schemeCategory20c.slice(1, 4));
+// var color = d3.scaleOrdinal(d3.schemeCategory20c.slice(1, 4));
 
 if (defaultView == true) {
     var datVan = vancouver;
