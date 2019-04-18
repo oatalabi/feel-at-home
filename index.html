@@ -172,7 +172,10 @@
                             <div id="price_view"></div>
                         </div>
                     </div>
-                    <div class="col-5 border-mark" id="age"><h5>Percentage Population By Age</h5></div>
+                    <div class="col-5 border-mark" id="age"><h5>Percentage Population By Age</h5>
+                    <div class="chart" style="width: 40%; float: left; margin-right: 0px;"></div>
+                    <div class="table1" style="width: 51%; float: right; margin-top:5%"></div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -2361,18 +2364,18 @@ function segColor(c) {
 function drawAgeGraph(data) {
     var pC = {},
         pieDim = {
-            w: 250,
-            h: 250
+            w: 200,
+            h: 200
         };
     pieDim.r = Math.min(pieDim.w, pieDim.h) / 2;
 
     // create svg for pie chart.
-    var piesvg = d3.select('#age').append("svg")
+    var piesvg = d3.select('#age div.chart').append("svg")
         .attr("width", pieDim.w).attr("height", pieDim.h).append("g")
         .attr("transform", "translate(" + pieDim.w / 2 + "," + pieDim.h / 2 + ")");
 
     // create function to draw the arcs of the pie slices.
-    var arc = d3.arc().outerRadius(pieDim.r - 10).innerRadius(0);
+    var arc = d3.arc().outerRadius(pieDim.r - 30).innerRadius(0);
 
     // create a function to compute the pie slice angles.
     var pie = d3.pie().sort(null).value(function (d) {
@@ -2489,7 +2492,7 @@ function ageLegend(lD, show) {
     var leg = {};
 
     // create table for legend.
-    var legendage = d3.select('#age').append("table").attr('class', 'legend');
+    var legendage = d3.select('#age div.table1').append("table").attr('class', 'legend');
 
     // create one row per segment.
     var tr = legendage.append("tbody").selectAll("tr").data(lD).enter().append("tr");
