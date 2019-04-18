@@ -2,7 +2,7 @@
   "name": "vancouver",
   "version": "1.0.0",
   "description": "",
-  "main": "vancouver.js",
+  "main": "app.js",
   "dependencies": {
     "convert-csv-to-json": "^0.0.14",
     "csv-to-ndjson": "^1.0.1",
@@ -10,6 +10,8 @@
     "d3-geo": "^1.11.3",
     "d3-legend": "^1.0.0",
     "datamaps": "^0.5.9",
+    "express": "^4.16.4",
+    "path": "^0.12.7",
     "proj4": "^2.5.0",
     "utm-latlng": "^1.0.5",
     "v4": "^0.0.1"

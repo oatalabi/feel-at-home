@@ -1,5 +1,5 @@
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+const WIDTH = "1440px";
+const HEIGHT = "789px";
 const ZOOM_THRESHOLD = [0.2, 3];
 const OVERLAY_MULTIPLIER = 10;
 const OVERLAY_OFFSET = OVERLAY_MULTIPLIER / 2 - 0.5;
@@ -16,7 +16,6 @@ const zoom = d3.zoom()
     });
 
 function mouseOverHandler(d, i) {
-    // console.log('=====on mouse over???????')
     d3.select(this).attr("fill", "#2F4F4F").attr("stroke-width", "1px").attr("stroke-opacity", 1).style("opacity", 0.6)
     tooltip.transition()
         .duration(200)
@@ -396,7 +395,7 @@ function update(rental_type = 'none') {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html(d.type + ':rrrrr ' + d.price)
+                tooltip.html(d.type + ': ' + d.price)
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
             })
