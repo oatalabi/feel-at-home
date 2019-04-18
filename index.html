@@ -2341,7 +2341,7 @@ function drawRentalGraph(data, value) {
         d3.select(this).attr('class', "rental-type"+d.name)
         d3.select(this).attr('active', 'true')
         d3.selectAll('#rental-type').style('fill', "rgba(52, 31, 151, 0.9)")
-        d3.select('.rental-type'+d.name).style('fill', 'red')
+        d3.select('.rental-type'+d.name).style('fill', 'darkgrey')
         update(d.name)
     }
 }
