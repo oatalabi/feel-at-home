@@ -61,6 +61,9 @@
             appearance: none;
             /* background: url(http://www.stackoverflow.com/favicon.ico) 96% / 15% no-repeat #eee; */
         }
+        #age svg{
+            cursor: grabbing;
+        }
 
         .nav-item {
             padding: 10px 5px 0px 17px;
@@ -79,7 +82,7 @@
             margin-left: 20px;
         }
         #price-slider input{
-            width: 65%;
+            width: 63%;
             margin: 5px;
         }
         .pricing {
@@ -95,7 +98,26 @@
         .legendPerc{
             padding-left: 10px;
         }
-
+        .legend {
+            float: right;
+        }
+        .border-mark {
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid rgba(52, 31, 151, 0.1);
+            padding: 10px;
+            margin-right: 4px;
+            margin-bottom: 5px;
+        }
+        .col-2 {
+                max-width: 14.666667% !important;
+        }
+        .border-map {
+            height: 70%;
+        }
+        #map__text {
+            padding-right: 80px;
+        }
     </style>
     <div class="container-fluid">
         <div class="row">
@@ -124,8 +146,9 @@
                 </div>
             </nav>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Feel At Home!</h1>
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+                    style="background: rgb(128, 125, 186); color: #fff;">
+                    <h1 class="h2"  style="padding-left: 30px;">Feel At Home!</h1>
                     <span id="map__text">Select an area on the map.... </span>
                 </div>
 
@@ -135,21 +158,21 @@
                         <i id="btn-zoom--out" class="fa fa-search-minus fa-2x" aria-hidden="true"></i>
                     </div> -->
                     <div class="row" id="map_space" style="height:450px; width:100%;">
-                        <div class="col-4" id="map__container"><h5>Rental Distribution</h5></div>
-                        <div class="col-4" id="age_map__container"><h5>Age Distribution</h5></div>
+                        <div class="col-4 border-mark border-map" id="map__container"><h5>Rental Distribution</h5></div>
+                        <div class="col-4 border-mark border-map" id="age_map__container"><h5>Age Distribution</h5></div>
                     </div>
                 </div>
                 <div class="row analysis">
-                    <div class="col-7">
+                    <div class="col-6 border-mark">
                         <!-- <h5>Housing Types</h5> -->
                         <div id="rental"><h5>Average Rent Per Housing Type in CAD</h5></div>
-                        <span><b>Drag the slide to select rent range</b></span>
+                        <span><b>Select rent price range</b></span>
                         <div class="pricing">
                             <div><span>0</span><span id="price-slider"></span><span>5000</span></div>
                             <div id="price_view"></div>
                         </div>
                     </div>
-                     <div class="col-5" id="age"><h5>Percentage Population By Age</h5></div>
+                    <div class="col-5 border-mark" id="age"><h5>Percentage Population By Age</h5></div>
                 </div>
             </main>
         </div>
@@ -1685,7 +1708,7 @@ function clickHandler(d, i) {
     leg.update(pieData)
     d3.select("#map__text").text(`You've selected ${d.properties.name}`)
     d3.select("#information").style('font', '12px sans-serif').style('border', '1px solid #ced4da').style('border-radius', '.2rem')
-        .style('background-color', '#fff').style('color', '#495057').style('font-size', '.875rem').style('padding', '.25rem .5rem').html(`Additional Information<br><br> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
+        .style('background-color', '#fff').style('color', '#495057').style('font-size', '.875rem').style('padding', '.25rem .5rem').html(`<h5>${d.properties.name}</h5> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
 }
 
 defaultView = true
@@ -1963,7 +1986,7 @@ function drawLegend(type, threshold) {
 
         legendsvg.append("g")
             .attr("class", "legendQuant")
-            .attr("transform", "translate(20,20)");
+            .attr("transform", "translate(5,20)");
 
         legendsvg.select(".legendQuant")
             .call(legend);
@@ -2034,6 +2057,14 @@ function update(rental_type = 'none') {
     } else {
         var slider_price = document.getElementById("price").value;
         d3.select('#price_view').text(slider_price)
+        var count = 0
+
+        var alldata = {
+            "3-Bedroom+": 25,
+            "2-Bedroom": 31,
+            "1-Bedroom": 17,
+            "Bachelor": 13
+        }
         if (rental_type != 'none') {
             var new_loc = []
             var new_loc = all_loc
@@ -2052,13 +2083,18 @@ function update(rental_type = 'none') {
                             }
                             return true
                         }
+                        if (i['type'] == rental_type && (i['price'] > parseInt(slider_price))) {
+                            count += 1
+                        }
                     })
+                }
+                if (count ==  alldata[rental_type]){
+                    alert("No matching rent for that price")
                 }
             })
         } else {
             var new_loc = []
             var new_loc = all_loc
-            console.log("only price slider no rental_type")
 
             rentalData.forEach(function (d) {
                 if (d["name"] != "All") {
@@ -2366,6 +2402,7 @@ function drawAgeGraph(data) {
     function mouseover(d) {
             if (d.data.type == '0-14') {
                 focused_14 = !focused_14
+                d3.select(this).attr('id', 'age_forteen')
                 focused_65 = false
                 focused_64 = false
                 colorMap = color_14
@@ -2373,6 +2410,7 @@ function drawAgeGraph(data) {
             }
             if (d.data.type == '15-64') {
                 focused_64 = !focused_64
+                d3.select(this).attr('id', 'age_sixtyfour')
                 focused_65 = false
                 focused_14 = false
                 colorMap = color_14
@@ -2380,10 +2418,29 @@ function drawAgeGraph(data) {
             }
             if (d.data.type == '65+') {
                 focused_65 = !focused_65
+                d3.select(this).attr('id', 'age_sixtyfive')
                 focused_14 = false
                 focused_64 = false
                 colorMap = color_14
                 // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#b2ffc6', '#9cedb1', '#8be0a1', '#81db98', '#79d18f', '#57c173', '#41ab5d']);
+            } 
+            if(focused_65 && d.data.type == '65+'){
+                d3.select(this).style('stroke', '#fff').style("stroke-width", "5px").style("stroke-opacity", 1).style('fill', '#494677').style('opacity', 1)
+            } 
+            if(focused_64 && d.data.type == '15-64'){
+            d3.select(this).style('stroke', '#fff').style("stroke-width", "5px").style("stroke-opacity", 1).style('fill', '#494677').style('opacity', 1)
+            }
+            if(focused_14 && d.data.type == '0-14'){
+                d3.select(this).style('stroke', '#fff').style("stroke-width", "5px").style("stroke-opacity", 1).style('fill', '#494677').style('opacity', 1)
+            }
+            if(!focused_65){
+            d3.select('#age_sixtyfive').style('fill', 'rgba(128, 125, 186, 1)').style("stroke-opacity", 0)
+            }
+            if(!focused_64){
+             d3.select('#age_sixtyfour').style('fill', 'rgba(128, 125, 186, 0.6)').style("stroke-opacity", 0)
+            }
+            if(!focused_14){
+             d3.select('#age_forteen').style('fill', 'rgba(128, 125, 186, 0.2)').style("stroke-opacity", 0)
             }
             defaultView = false
             addDensity(d.data, 'age')

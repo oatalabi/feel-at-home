@@ -741,31 +741,37 @@ function drawAgeGraph(data) {
     var focused_65 = false
 
     function mouseover(d) {
-            if (d.data.type == '0-14') {
-                focused_14 = !focused_14
-                focused_65 = false
-                focused_64 = false
-                colorMap = color_14
-                //  = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#f0eff9', '#d7d5ef', '#ccc9ea', '#b9b5e0', '#908dc6', '#918fc4', '#807dba']);
+        console.log('-im cliecked===')
+        if (d.data.type == '0-14') {
+            focused_14 = !focused_14
+            console.log(focused_14, '====')
+            if(focused_14 == true){
+                console.log('=======')
+                d3.select(this).attr('stroke', '#fff !important').attr("stroke-width", "5px").attr("stroke-opacity", 1).style("opacity", 0.6).attr('fill', 'purple')
             }
-            if (d.data.type == '15-64') {
-                focused_64 = !focused_64
-                focused_65 = false
-                focused_14 = false
-                colorMap = color_14
-                // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#ffe3c4', '#ffcd93', '#f9a748', '#efc28d', '#efae62', '#ef9d3e', '#e08214']);
-            }
-            if (d.data.type == '65+') {
-                focused_65 = !focused_65
-                focused_14 = false
-                focused_64 = false
-                colorMap = color_14
-                // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#b2ffc6', '#9cedb1', '#8be0a1', '#81db98', '#79d18f', '#57c173', '#41ab5d']);
-            }
-            defaultView = false
-            addDensity(d.data, 'age')
-            leg.update(pieData)
-            drawLegend('age', colorMap)
+            focused_65 = false
+            focused_64 = false
+            colorMap = color_14
+            //  = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#f0eff9', '#d7d5ef', '#ccc9ea', '#b9b5e0', '#908dc6', '#918fc4', '#807dba']);
+        }
+        if (d.data.type == '15-64') {
+            focused_64 = !focused_64
+            focused_65 = false
+            focused_14 = false
+            colorMap = color_14
+            // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#ffe3c4', '#ffcd93', '#f9a748', '#efc28d', '#efae62', '#ef9d3e', '#e08214']);
+        }
+        if (d.data.type == '65+') {
+            focused_65 = !focused_65
+            focused_14 = false
+            focused_64 = false
+            colorMap = color_14
+            // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#b2ffc6', '#9cedb1', '#8be0a1', '#81db98', '#79d18f', '#57c173', '#41ab5d']);
+        }
+        defaultView = false
+        addDensity(d.data, 'age')
+        leg.update(pieData)
+        drawLegend('age', colorMap)
         if (!focused_14 && !focused_64 && !focused_65) {
             var selected = d3.select('#ethnicity').attr('active')
             if (selected == 'true') {
