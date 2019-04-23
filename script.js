@@ -73,7 +73,6 @@ if (defaultView == true) {
 }
 
 var ethnicColor = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#F8F8F8', '#E8E8E8', '#DCDCDC', '#D0D0D0', '#B0B0B0', '#888888']);
-var color_14 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#fef3f3', '#facfcf', '#f7abac', '#f38888', '#f06465', '#ea2e2f']);
 // var color_64 = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#ffe3c4', '#ffcd93', '#efc28d', '#efae62', '#f9a748', '#ef9d3e', '#e08214']);
 // var color_65 = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#b2ffc6', '#9cedb1', '#8be0a1', '#81db98', '#79d18f', '#57c173', '#41ab5d']);
 
@@ -262,6 +261,7 @@ function renderMap(root, changed, type) {
             .on("mouseover", mouseOverHandler)
             .on("mouseout", function(d,i){
                 if (d.properties.density !== undefined && changed) {
+                    console.log('=============')
                     d3.select(this).attr("fill", color_14(d.properties.density))
                 } else {
                     d3.select(this).attr("fill", "#A9A9A9")
@@ -744,7 +744,6 @@ function drawAgeGraph(data) {
         console.log('-im cliecked===')
         if (d.data.type == '0-14') {
             focused_14 = !focused_14
-            console.log(focused_14, '====')
             if(focused_14 == true){
                 console.log('=======')
                 d3.select(this).attr('stroke', '#fff !important').attr("stroke-width", "5px").attr("stroke-opacity", 1).style("opacity", 0.6).attr('fill', 'purple')
