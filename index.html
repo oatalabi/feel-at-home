@@ -1754,7 +1754,7 @@ const ageDist = [
                 '.25rem .5rem').html(`<h5>${d.properties.name}</h5> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
                 update(allHousing);
             } else {
-                d3.selectAll("path#" + d.properties.id).attr("fill", "#c8d6e5").attr("stroke-width", "2px").attr("stroke-opacity", 1).style("opacity", 0.6)
+                d3.selectAll("path#" + d.properties.id).attr("stroke-width", "2px").attr("stroke-opacity", 1).style("opacity", 0.6)
                 d3.select("#information").style("display", "none");
                 pieData = ['0-14', '15-64', '65+'].map(function (d) {
                     return {
@@ -2270,11 +2270,11 @@ const ageDist = [
 
         function housingColor(c) {
             return {
-            '3-Bedroom+': '#341f97',
-            '2-Bedroom': "#1dd1a1",
-            '1-Bedroom': '#54a0ff',
-            'Bachelor': '#ee5253'
-            // 'Bachelor': '#b71540'
+            '3-Bedroom+': 'rgba(34, 47, 62,1.0)',
+            '1-Bedroom': "#ff9ff3",
+            '2-Bedroom': 'rgba(95, 39, 205, 0.7)',
+            'Bachelor': 'rgba(0, 210, 211,1.0)'
+            // 'Bachelor': '#b71540' 
             } [c];
         }
 
