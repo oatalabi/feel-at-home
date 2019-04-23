@@ -157,17 +157,23 @@
                         <i id="btn-zoom--out" class="fa fa-search-minus fa-2x" aria-hidden="true"></i>
                     </div> -->
                     <div class="row" id="map_space" style="height:450px; width:100%;">
-                        <div class="col-4 border-mark border-map" id="map__container"><h5>Rental Distribution</h5></div>
+                        <div class="col-4 border-mark border-map" id="map__container">
+                            <h5 style="margin-bottom: 0px;">Rental Distribution</h5>
+                            <span style="font-size: 0.8rem; margin-top: -7px; font-style: italic;"><span style="color :rgba(254, 202, 87, 1); width: 2px">yellow</span> points show all available houses for rent</span>
+                        </div>
                         <div class="col-4 border-mark border-map" id="age_map__container"><h5>Age Distribution</h5></div>
                     </div>
                 </div>
                 <div class="row analysis">
                     <div class="col-6 border-mark">
                         <!-- <h5>Housing Types</h5> -->
-                        <div id="rental"><h5>Average Rent Per Housing Type in CAD</h5></div>
+                        <div id="rental">
+                            <h5 style="margin-bottom: 0px;">Average Rent Per Housing Type in CAD</h5>
+                            <span style="font-size: 0.8rem; margin-top: -7px; font-style: italic;">select one or more housing type</span>
+                        </div>
                         <span><b>Drag to select rent price range</b></span>
                         <div class="pricing">
-                            <div><span>0</span><span id="price-slider"></span><span>5000</span></div>
+                            <div><span>0</span><span id="price-slider"></span><span>6000</span></div>
                             <div id="price_view"></div>
                         </div>
                     </div>
@@ -771,7 +777,7 @@
         "Bachelor": 2200,
         "1-Bedroom": 3200,
         "2-Bedroom": 4000,
-        "3-Bedroom+": 5000,
+        "3-Bedroom+": 6000,
         "Latitude": 49.3304,
         "Longitude": -123.1599,
         "available3Bed": 2,
@@ -1657,7 +1663,7 @@ const ageDist = [
         const HOVER_COLOR = "#d36f80";
 
         function mouseOverHandler(d, i) {
-            d3.select(this).attr("fill", "#8395a7")
+            d3.select(this).attr("fill", "#576574")
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
@@ -1675,17 +1681,12 @@ const ageDist = [
             }
             tooltip.transition().duration(500).style("opacity", 0);
         }
+        var allHousing = []
 
         function clickHandler(d, i) {
             d.properties.clicked = !d.properties.clicked
-            if (d.properties.clicked) {
-                d3.selectAll("#map_space svg path").attr("stroke-width", "1px").attr("stroke-opacity", 1).style("opacity", 0.6)
-                d3.selectAll("path#" + d.properties.id).attr("stroke-width", "10px").attr("stroke-opacity", 1).style("opacity", 1)
-                update();
-            } else {
-                d3.selectAll("path#" + d.properties.id).attr("fill", "#A9A9A9").attr("stroke-width", "1px").attr("stroke-opacity", 1).style("opacity", 0.6)
-            }
             ageData = d.properties.age
+
             var pieData = ['0-14', '15-64', '65+'].map(function (d) {
                 return {
                     type: d,
@@ -1694,14 +1695,33 @@ const ageDist = [
                     }))
                 };
             });
+            if (d.properties.clicked) {
+                d3.selectAll("#map_space svg path").attr("stroke-width", "2px").attr("stroke-opacity", 1).style("opacity", 0.6)
+                d3.selectAll("path#" + d.properties.id).attr("stroke-width", "15px").attr("stroke-opacity", 1).style("opacity", 1)
+                d3.select("#information").style("display", "block").style('font', '12px sans-serif').style('border', '1px solid #ced4da').style('border-radius',
+                '.2rem').style('background-color', '#fff').style('color', '#495057').style('font-size', '.875rem').style('padding',
+                '.25rem .5rem').html(`<h5>${d.properties.name}</h5> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
+                update(allHousing);
+            } else {
+                d3.selectAll("path#" + d.properties.id).attr("fill", "#c8d6e5").attr("stroke-width", "2px").attr("stroke-opacity", 1).style("opacity", 0.6)
+                d3.select("#information").style("display", "none");
+                pieData = ['0-14', '15-64', '65+'].map(function (d) {
+                    return {
+                        type: d,
+                        freq: d3.sum(ageDist.map(function (t) {
+                            return t.freq[d];
+                        }))
+                    };
+                });
+                pC.update(pieData)
+            }
             d3.select("#rental-svg").remove()
             drawRentalGraph(rentalData, d.properties.name)
             pC.update(pieData)
             ageLegend(pieData, 'ethnic')
             leg.update(pieData)
             d3.select("#map__text").text(`You've selected ${d.properties.name}`)
-            d3.select("#information").style('font', '12px sans-serif').style('border', '1px solid #ced4da').style('border-radius', '.2rem')
-                .style('background-color', '#fff').style('color', '#495057').style('font-size', '.875rem').style('padding', '.25rem .5rem').html(`<h5>${d.properties.name}</h5> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
+            
             }
 
         defaultView = true
@@ -1710,7 +1730,7 @@ const ageDist = [
             var datVan = vancouver;
         }
 
-        var ethnicColor = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#F8F8F8', '#E8E8E8', '#DCDCDC', '#D0D0D0', '#B0B0B0', '#888888']);
+        var ethnicColor = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#e3eaf2', '#c8d6e5', '#adc2d8', '#93aecc', '#789abf', '#5d87b3']);
         var color_14 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#f0fdfa', '#cef8ed', '#abf3e0', '#89efd3', '#44e5ba', '#1dd1a1']);
         var color_64 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#f1f7ff', '#cae1ff', '#a2ccff', '#7bb6ff', '#54a0ff', '#4095ff']);
         var color_65 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#fef3f3', '#facfcf',        '#f7abac', '#f38888', '#f06465', '#ea2e2f']);
@@ -1718,19 +1738,16 @@ const ageDist = [
 
         d3.select("#ethnicity").on('change', function () {
             var newData = eval(d3.select(this).property('value'));
-
             if (newData == 0) {
                 defaultView = true
                 d3.select('#information').remove()
                 d3.select(this).attr('active', false)
-                // color = d3.scaleOrdinal(d3.schemeCategory20c.slice(1, 4));
                 renderMap(datVan, false, 'ethnic');
-                // d3.select(".legend").remove();
+                d3.select(".legendethnic").remove();
             } else {
                 d3.select(this).attr('active', true)
                 defaultView = false
                 colorMap = ethnicColor
-                // d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#C6DBEF', '#9ECAE1', '#6baed6', '#3399cc', '#005ea8', '#3b508b', '#081d58']);
                 addDensity(newData, 'ethnic')
                 drawLegend('ethnic', colorMap)
                 leg = ageLegend(pieData, 'ethnic')
@@ -1768,7 +1785,7 @@ const ageDist = [
 
         g
             .attr(
-                "transform", 'translate(130,40) scale(0.23)'
+                "transform", 'translate(110,25) scale(0.23)'
             )
 
         ageG
@@ -1784,7 +1801,7 @@ const ageDist = [
 
         ageG
             .attr(
-                "transform", 'translate(130,40) scale(0.23)'
+                "transform", 'translate(110,40) scale(0.23)'
             )
 
         svg_width = d3.select("#map__container").node().getBoundingClientRect().width;
@@ -1826,7 +1843,7 @@ const ageDist = [
             renderMap(datVan, true, type);
             var price = checkIfRental()
             if (price == 'true') {
-                update(rental_type)
+                update(allHousing)
             }
         }
 
@@ -1861,7 +1878,7 @@ const ageDist = [
             .attr("type", "range")
             .attr("id", "price")
             .attr("min", 0)
-            .attr("max", 5000)
+            .attr("max", max_rental)
             .attr("step", "100")
             .on("input", function input() {
                 var selectedrent = parseInt(d3.select(this).property('value'))
@@ -1870,7 +1887,12 @@ const ageDist = [
                 } else {
                     d3.select(this).attr('active', false)
                 }
-                update();
+                if (allHousing.length > 0){
+                    update(allHousing);
+                }
+                else {
+                    update();
+                }
             });
 
         function checkIfRental() {
@@ -1882,7 +1904,6 @@ const ageDist = [
         function renderMap(root, changed, type) {
             if(type == 'age'){
                 d3.select('#age_map').remove();
-
                 ageG.append("g")
                     .attr('id', 'age_map')
                     .selectAll("path")
@@ -1898,17 +1919,17 @@ const ageDist = [
                         if (changed) {
                             return colorMap(d.properties.density)
                         } else {
-                            return "#A9A9A9"
+                            return "#c8d6e5"
                         }
                     })
                     .attr("stroke", "#FFF")
-                    .attr("stroke-width", 0.5)
+                    .attr("stroke-width", 2)
                     .on("mouseover", mouseOverHandler)
                     .on("mouseout", function(d,i){
                         if (d.properties.density !== undefined && changed) {
                             d3.select(this).attr("fill", colorMap(d.properties.density))
                         } else {
-                            d3.select(this).attr("fill", "#A9A9A9")
+                            d3.select(this).attr("fill", "#c8d6e5")
                         }
                         tooltip.transition()
                             .duration(500)
@@ -1921,7 +1942,6 @@ const ageDist = [
                     // .style("opacity", 0.6)
             }
             if (type == 'ethnic'){
-                update("default")
                 g
                     .append("g")
                     .attr('id', 'ethnic_map')
@@ -1938,23 +1958,24 @@ const ageDist = [
                         if (changed) {
                             return colorMap(d.properties.density)
                         } else {
-                            return "#A9A9A9"
+                            return "#c8d6e5"
                         }
                     })
                     .attr("stroke", "#FFF")
-                    .attr("stroke-width", 0.5)
+                    .attr("stroke-width", 2)
                     .on("mouseover", mouseOverHandler)
                     .on("mouseout", function(d, i){
                         if (d.properties.density !== undefined && changed) {
                             d3.select(this).attr("fill", ethnicColor(d.properties.density))
                         } else {
-                            d3.select(this).attr("fill", "#A9A9A9")
+                            d3.select(this).attr("fill", "#c8d6e5")
                         }
                         tooltip.transition()
                             .duration(500)
                             .style("opacity", 0);
                     })
                     .on("click", clickHandler);
+                update("default")                
             }
         }
 
@@ -1998,7 +2019,7 @@ const ageDist = [
             return "red"
         }
 
-        function update(rental_type = 'none') {
+        function update(rental_type='none') {
             const rental_types = {
                 1: "Bachelor",
                 2: "1-Bedroom",
@@ -2071,25 +2092,25 @@ const ageDist = [
                     rentalData.forEach(function (d) {
                         if (d["name"] != "All") {
                             d["areas"].filter(function (i) {
-                                if (i['type'] == rental_type && parseInt(slider_price) === 100) {
+                                if ((rental_type.indexOf(i['type']) > -1) && parseInt(slider_price) === 100) {
                                     if (new_loc.indexOf(i) > -1) {
                                         i["viewType"] = "housing"
                                     }
                                     return true
                                 }
-                                if (i['type'] == rental_type && (i['price'] <= parseInt(slider_price))) {
+                                if ((rental_type.indexOf(i['type']) > -1) && (i['price'] <= parseInt(slider_price))) {
                                     if (new_loc.indexOf(i) > -1) {
                                         i["viewType"] = "housing"
                                     }
                                     return true
                                 }
-                                if (i['type'] == rental_type && (i['price'] > parseInt(slider_price))) {
+                                if ((rental_type.indexOf(i['type']) > -1) && (i['price'] > parseInt(slider_price))) {
                                     count += 1
                                 }
                             })
                         }
                         if (count ==  alldata[rental_type]){
-                            alert("No matching rent was found for selected housing type and price")
+                            alert('No matching available rent was found for '+ parseInt(slider_price)+ 'CAD in one of the selected housing types, please select a different price or housing type')
                         }
                     })
                 } else {
@@ -2143,7 +2164,7 @@ const ageDist = [
                             return housingColor(d.type);
                         }
                         else {
-                            return "rgba(254, 202, 87,0.5)"
+                            return "rgba(254, 202, 87, 0.5)"
                         }
                     });
 
@@ -2238,9 +2259,11 @@ const ageDist = [
                 .attr("y", function (d) {
                     return y(d.name);
                 })
+                .attr("kind", function (d) {
+                    return d.name;
+                })
                 .attr('active', 'false')
                 .attr('id', "rental-type")
-                // .style("fill", "rgb(52, 31, 151, 0.9)")
                 .style("fill", function (d) {
                     return housingColor(d.name);
                 })
@@ -2293,16 +2316,21 @@ const ageDist = [
                 var checkStatus = d3.select(this).attr('active')
                 if (checkStatus == 'true'){
                     d3.select(this).attr('active', 'false')
-                    d3.selectAll('#rental-type').style("stroke-width", "1px").style("stroke-opacity", 1)
+                    allHousing = allHousing.filter(function(n){
+                        return (n != d.name)
+                    })
+                    d3.select(this).attr('rental_selected', null)
+                    d3.select(this).style("stroke-width", "1px").style("stroke-opacity", 1)
+                    update(allHousing)
                 }
                 else {
-                    d3.selectAll('#rental-type').attr('active', 'false')
+                    d3.select(this).attr('rental_selected', 'true')
                     d3.select(this).attr('active', 'true')
                     d3.selectAll('#rental-type').style("stroke-width", "1px").style("stroke-opacity", 1)
-                    d3.select(this).style('stroke', 'grey').style("stroke-width", "4px").style("stroke-opacity", 1)
-                    update(d.name)
+                    d3.selectAll('[rental_selected=true]').style('stroke', 'grey').style("stroke-width", "4px").style("stroke-opacity", 1)
+                    allHousing.push(d.name)
+                    update(allHousing)
                 }
-
                 d3.selectAll('#rental-type').style('fill', function(d) {
                     return housingColor(d.name);
                 })
