@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "convert-csv-to-json": "^0.0.14",
+    "cors": "^2.8.5",
     "csv-to-ndjson": "^1.0.1",
     "d3": "4.2.2",
     "d3-geo": "^1.11.3",
