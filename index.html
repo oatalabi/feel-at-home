@@ -1964,10 +1964,6 @@ const ageDist = [
 
         function appendSchools(){
             var schools = g.selectAll('.schools').data(allSchools)
-            schools.enter().append("image");
-            schools
-                .attr("class", "schools")
-                .attr("xlink:href")
               
         }
 
@@ -1978,16 +1974,18 @@ const ageDist = [
         }
 
         function addSchools (){
-            var schools = g.selectAll('.schools').data(allSchools)
+            var schools = g.selectAll('.school')
             schools.enter().append("image");
             schools
-                .attr("class", "schools")
+                .attr("class", "school")
                 .attr("xlink:href", "https://image.flaticon.com/icons/png/512/49/49944.png")
-                .attr("x", function (d, i) { return projection(d['longitude']); })
-                .attr("y", function (d, i) { return projection(d['latitude']); })
+                .attr("x", projection(-123.087595))
+                .attr("y", projection(49.319322))
                 .attr("width", "50px")
+                .attr('fill', 'red')
                 .attr("height", "50px");
         }
+
         function renderMap(root, changed, type) {
             if(type == 'age'){
                 d3.select('#age_map').remove();

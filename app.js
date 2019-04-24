@@ -8,5 +8,9 @@ app.get('/', (req, res) => res.sendFile('index.html', {
     root: path.join(__dirname)
 }))
 app.use(cors());
-// app.listen(port, () => console.log(`Example app listening on port ${port}!`))
-app.listen(process.env.PORT || 3000)
+
+// for local testing
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+// for heroku deployment
+// app.listen(process.env.PORT || 3000)
