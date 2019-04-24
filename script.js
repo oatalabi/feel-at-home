@@ -1,5 +1,5 @@
-const WIDTH = "1440px";
-const HEIGHT = "789px";
+const WIDTH = 1440;
+const HEIGHT = 789;
 const ZOOM_THRESHOLD = [0.2, 3];
 const OVERLAY_MULTIPLIER = 10;
 const OVERLAY_OFFSET = OVERLAY_MULTIPLIER / 2 - 0.5;
@@ -8,19 +8,12 @@ const ZOOM_IN_STEP = 2;
 const ZOOM_OUT_STEP = 1 / ZOOM_IN_STEP;
 const HOVER_COLOR = "#d36f80";
 
-// --------------- Event handler ---------------
-const zoom = d3.zoom()
-    .scaleExtent(ZOOM_THRESHOLD)
-    .on("zoom", function () {
-        g.attr("transform", d3.event.transform);
-    });
-
 function mouseOverHandler(d, i) {
-    d3.select(this).attr("fill", "#2F4F4F").attr("stroke-width", "1px").attr("stroke-opacity", 1).style("opacity", 0.6)
+    d3.select(this).attr("fill", "#576574")
     tooltip.transition()
         .duration(200)
         .style("opacity", .9);
-    tooltip.html(d.properties.name)
+    tooltip.html(`<b>${d.properties.name}</b>`)
         .style("left", (d3.event.pageX) + "px")
         .style("top", (d3.event.pageY - 28) + "px");
 }
@@ -31,22 +24,14 @@ function mouseOutHandler(d, i) {
     } else {
         d3.select(this).attr("fill", "#3399cc")
     }
-    tooltip.transition()
-        .duration(500)
-        .style("opacity", 0);
+    tooltip.transition().duration(500).style("opacity", 0);
 }
+var allHousing = []
 
 function clickHandler(d, i) {
     d.properties.clicked = !d.properties.clicked
-    if (d.properties.clicked) {
-        d3.selectAll("#map_space svg path").attr("stroke-width", "1px").attr("stroke-opacity", 1).style("opacity", 0.6)
-        // d3.select(this).attr("stroke-width", "10px").attr("stroke-opacity", 1).style("opacity", 1)
-        d3.selectAll("path#" + d.properties.id).attr("stroke-width", "10px").attr("stroke-opacity", 1).style("opacity", 1)
-        update();
-    } else {
-        d3.select(this).attr("fill", "#A9A9A9").attr("stroke-width", "1px").attr("stroke-opacity", 1).style("opacity", 0.6)
-    }
     ageData = d.properties.age
+
     var pieData = ['0-14', '15-64', '65+'].map(function (d) {
         return {
             type: d,
@@ -55,42 +40,59 @@ function clickHandler(d, i) {
             }))
         };
     });
+    if (d.properties.clicked) {
+        d3.selectAll("#map_space svg path").attr("stroke-width", "2px").attr("stroke-opacity", 1).style("opacity", 0.6)
+        d3.selectAll("path#" + d.properties.id).attr("stroke-width", "15px").attr("stroke-opacity", 1).style("opacity", 1)
+        d3.select("#information").style("display", "block").style('font', '12px sans-serif').style('border', '1px solid #ced4da').style('border-radius',
+            '.2rem').style('background-color', '#fff').style('color', '#495057').style('font-size', '.875rem').style('padding',
+                '.25rem .5rem').html(`<h5>${d.properties.name}</h5> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
+        update(allHousing);
+    } else {
+        d3.selectAll("path#" + d.properties.id).attr("stroke-width", "2px").attr("stroke-opacity", 1).style("opacity", 0.6)
+        d3.select("#information").style("display", "none");
+        pieData = ['0-14', '15-64', '65+'].map(function (d) {
+            return {
+                type: d,
+                freq: d3.sum(ageDist.map(function (t) {
+                    return t.freq[d];
+                }))
+            };
+        });
+        pC.update(pieData)
+    }
     d3.select("#rental-svg").remove()
     drawRentalGraph(rentalData, d.properties.name)
     pC.update(pieData)
     ageLegend(pieData, 'ethnic')
     leg.update(pieData)
     d3.select("#map__text").text(`You've selected ${d.properties.name}`)
-    d3.select("#information").style('font', '12px sans-serif').style('border', '1px solid #ced4da').style('border-radius', '.2rem')
-        .style('background-color', '#fff').style('color', '#495057').style('font-size', '.875rem').style('padding', '.25rem .5rem').html(`Additional Information<br><br> <b>Number of listings</b>: ${d.properties.listings} <br> <b>Population</b>: ${d.properties.total_ages} <br> <b>Parks and Recreation Centers</b>: ${d.properties.parks}`)
+
 }
 
 defaultView = true
-// var color = d3.scaleOrdinal(d3.schemeCategory20c.slice(1, 4));
 
 if (defaultView == true) {
     var datVan = vancouver;
 }
 
-var ethnicColor = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#F8F8F8', '#E8E8E8', '#DCDCDC', '#D0D0D0', '#B0B0B0', '#888888']);
-// var color_64 = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#ffe3c4', '#ffcd93', '#efc28d', '#efae62', '#f9a748', '#ef9d3e', '#e08214']);
-// var color_65 = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#b2ffc6', '#9cedb1', '#8be0a1', '#81db98', '#79d18f', '#57c173', '#41ab5d']);
+var ethnicColor = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#e3eaf2', '#c8d6e5', '#adc2d8', '#93aecc', '#789abf', '#5d87b3']);
+var color_14 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#f0fdfa', '#cef8ed', '#abf3e0', '#89efd3', '#44e5ba', '#1dd1a1']);
+var color_64 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#f1f7ff', '#cae1ff', '#a2ccff', '#7bb6ff', '#54a0ff', '#4095ff']);
+var color_65 = d3.scaleThreshold().domain([0, 1000, 10000, 50000, 100000, 500000]).range(['#fef3f3', '#facfcf', '#f7abac', '#f38888', '#f06465', '#ea2e2f']);
+
 
 d3.select("#ethnicity").on('change', function () {
     var newData = eval(d3.select(this).property('value'));
-
     if (newData == 0) {
         defaultView = true
         d3.select('#information').remove()
         d3.select(this).attr('active', false)
-        // color = d3.scaleOrdinal(d3.schemeCategory20c.slice(1, 4));
         renderMap(datVan, false, 'ethnic');
-        // d3.select(".legend").remove();
+        d3.select(".legendethnic").remove();
     } else {
         d3.select(this).attr('active', true)
         defaultView = false
         colorMap = ethnicColor
-        // d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#C6DBEF', '#9ECAE1', '#6baed6', '#3399cc', '#005ea8', '#3b508b', '#081d58']);
         addDensity(newData, 'ethnic')
         drawLegend('ethnic', colorMap)
         leg = ageLegend(pieData, 'ethnic')
@@ -128,7 +130,7 @@ g
 
 g
     .attr(
-        "transform", 'translate(130,40) scale(0.23)'
+        "transform", 'translate(110,25) scale(0.23)'
     )
 
 ageG
@@ -144,7 +146,7 @@ ageG
 
 ageG
     .attr(
-        "transform", 'translate(130,40) scale(0.23)'
+        "transform", 'translate(110,40) scale(0.23)'
     )
 
 svg_width = d3.select("#map__container").node().getBoundingClientRect().width;
@@ -174,18 +176,19 @@ function addDensity(data, type) {
         datVan["features"].map(function (v) {
             v["properties"]["density"] = Math.floor(parseInt(v["properties"][vals[data]]))
         })
+        d3.select('#ethnic_map').remove();
     }
     if (type == 'age') {
         ageType = data.type
         datVan["features"].map(function (v) {
             v["properties"]["density"] = v["properties"]["age"][0]["freq"][ageType]
         })
+        d3.select('#age_map').remove();
     }
-    d3.select(g).remove();
     renderMap(datVan, true, type);
     var price = checkIfRental()
     if (price == 'true') {
-        update(rental_type)
+        update(allHousing)
     }
 }
 
@@ -199,6 +202,8 @@ const path = d3.geoPath().projection(projection);
 
 renderMap(datVan, false, 'ethnic');
 renderMap(datVan, false, 'age');
+update('default')
+// addSchools()
 
 drawRentalGraph(rentalData, "All")
 var rentalId = 0
@@ -207,9 +212,22 @@ rentalData.forEach(function (d) {
     rentalId = rentalId + 1
 })
 
+var allSchools = [{
+    name: "Saint Keth",
+    latitude: 49.319322,
+    longitude: -123.087595
+},
+{
+    name: "British Hills Montessori",
+    latitude: 49.324030,
+    longitude: -123.081384
+},
+];
+
+
 var min_rental = d3.min(rentalData, function (d) {
-        return d["Bachelor"];
-    }),
+    return d["Bachelor"];
+}),
     max_rental = d3.max(rentalData, function (d) {
         return d["3-Bedroom+"];
     });
@@ -219,7 +237,7 @@ price_svg.append("input")
     .attr("type", "range")
     .attr("id", "price")
     .attr("min", 0)
-    .attr("max", 5000)
+    .attr("max", max_rental)
     .attr("step", "100")
     .on("input", function input() {
         var selectedrent = parseInt(d3.select(this).property('value'))
@@ -228,8 +246,18 @@ price_svg.append("input")
         } else {
             d3.select(this).attr('active', false)
         }
-        update();
+        if (allHousing.length > 0) {
+            update(allHousing);
+        } else {
+            update();
+        }
     });
+
+
+function appendSchools() {
+    var schools = g.selectAll('.schools').data(allSchools)
+
+}
 
 function checkIfRental() {
     var price = d3.select('#price-slider input').attr('active')
@@ -237,9 +265,24 @@ function checkIfRental() {
     return price
 }
 
+function addSchools() {
+    var schools = g.selectAll('.school')
+    schools.enter().append("image");
+    schools
+        .attr("class", "school")
+        .attr("xlink:href", "https://image.flaticon.com/icons/png/512/49/49944.png")
+        .attr("x", projection(-123.087595))
+        .attr("y", projection(49.319322))
+        .attr("width", "50px")
+        .attr('fill', 'red')
+        .attr("height", "50px");
+}
+
 function renderMap(root, changed, type) {
-    if(type == 'age'){
+    if (type == 'age') {
+        d3.select('#age_map').remove();
         ageG.append("g")
+            .attr('id', 'age_map')
             .selectAll("path")
             .data(root.features)
             .enter()
@@ -253,33 +296,32 @@ function renderMap(root, changed, type) {
                 if (changed) {
                     return colorMap(d.properties.density)
                 } else {
-                    return "#A9A9A9"
+                    return "#c8d6e5"
                 }
             })
             .attr("stroke", "#FFF")
-            .attr("stroke-width", 0.5)
+            .attr("stroke-width", 2)
             .on("mouseover", mouseOverHandler)
-            .on("mouseout", function(d,i){
+            .on("mouseout", function (d, i) {
                 if (d.properties.density !== undefined && changed) {
-                    console.log('=============')
-                    d3.select(this).attr("fill", color_14(d.properties.density))
+                    d3.select(this).attr("fill", colorMap(d.properties.density))
                 } else {
-                    d3.select(this).attr("fill", "#A9A9A9")
+                    d3.select(this).attr("fill", "#c8d6e5")
                 }
                 tooltip.transition()
                     .duration(500)
                     .style("opacity", 0);
             })
             .on("click", clickHandler)
-            // .attr("id", function (d) {
-            //     return d.properties.id;
-            // })
-            // .style("opacity", 0.6)
+        // .attr("id", function (d) {
+        //     return d.properties.id;
+        // })
+        // .style("opacity", 0.6)
     }
-    if (type == 'ethnic'){
-        update("default")
+    if (type == 'ethnic') {
         g
             .append("g")
+            .attr('id', 'ethnic_map')
             .selectAll("path")
             .data(root.features)
             .enter()
@@ -293,34 +335,35 @@ function renderMap(root, changed, type) {
                 if (changed) {
                     return colorMap(d.properties.density)
                 } else {
-                    return "#A9A9A9"
+                    return "#c8d6e5"
                 }
             })
             .attr("stroke", "#FFF")
-            .attr("stroke-width", 0.5)
+            .attr("stroke-width", 2)
             .on("mouseover", mouseOverHandler)
-            .on("mouseout", function(d, i){
+            .on("mouseout", function (d, i) {
                 if (d.properties.density !== undefined && changed) {
                     d3.select(this).attr("fill", ethnicColor(d.properties.density))
                 } else {
-                    d3.select(this).attr("fill", "#A9A9A9")
+                    d3.select(this).attr("fill", "#c8d6e5")
                 }
                 tooltip.transition()
                     .duration(500)
                     .style("opacity", 0);
             })
             .on("click", clickHandler);
+        update("default")
     }
 }
 
 function drawLegend(type, threshold) {
-    
+
     var length = threshold.domain().length
-    
+
     column("d3.scaleThreshold", threshold);
-    
+
     function column(title, scale) {
-        d3.select(".legend"+type).remove()
+        d3.select(".legend" + type).remove()
         var legend = d3.legendColor()
             .labelFormat(d3.format(",.0f"))
             .labels(d3.legendHelpers.thresholdLabels)
@@ -328,11 +371,11 @@ function drawLegend(type, threshold) {
             .scale(scale);
 
         var div = d3.select("#map_space");
-        if(type == 'ethnic'){
+        if (type == 'ethnic') {
             var legendsvg = div.insert("div", "#map__container + *").attr("class", "col-2 legend" + type).html("<span>Population</span>")
                 .style("padding", "0px").append("svg").attr("height", "100%").attr("width", "200px");
         }
-        if(type == 'age'){
+        if (type == 'age') {
             var legendsvg = div.insert("div", "#age_map__container + *").attr("class", "col-2 legend" + type).html("<span>Population</span>")
                 .style("padding", "0px").append("svg").attr("height", "100%").attr("width", "200px");
         }
@@ -340,7 +383,7 @@ function drawLegend(type, threshold) {
 
         legendsvg.append("g")
             .attr("class", "legendQuant")
-            .attr("transform", "translate(20,20)");
+            .attr("transform", "translate(5,20)");
 
         legendsvg.select(".legendQuant")
             .call(legend);
@@ -352,6 +395,7 @@ var rent = g.append("g").attr("class", 'map__container' + "_rental");
 function rental_color(rentalData) {
     return "red"
 }
+
 function update(rental_type = 'none') {
     const rental_types = {
         1: "Bachelor",
@@ -367,7 +411,7 @@ function update(rental_type = 'none') {
             d["areas"].forEach(function (i) {
                 all_loc.push(i)
                 if (i["viewType"]) {
-                    delete(i["viewType"])
+                    delete (i["viewType"])
                 }
             })
         }
@@ -394,8 +438,12 @@ function update(rental_type = 'none') {
             .on("mouseover", function (d, i) {
                 tooltip.transition()
                     .duration(200)
+                    .style("width", "auto")
+                    .style("height", "auto")
+                    .style("text-align", "left")
+                    .style("overflow", "auto")
                     .style("opacity", .9);
-                tooltip.html(d.type + ': ' + d.price)
+                tooltip.html(`<div><b>${d.address}<br></b> <b>Housing Type</b>: ${d.type} <br> <b>Rent</b>: ${d.price} CAD<div>`)
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
             })
@@ -405,37 +453,50 @@ function update(rental_type = 'none') {
                     .style("opacity", 0);
             })
             .style("fill", function (d) {
-                return "#ff9b9b"
+                return "rgba(254, 202, 87, 0.5)"
             });
         exit.remove();
     } else {
         var slider_price = document.getElementById("price").value;
         d3.select('#price_view').text(slider_price)
+        var count = 0
+
+        var alldata = {
+            "3-Bedroom+": 25,
+            "2-Bedroom": 31,
+            "1-Bedroom": 17,
+            "Bachelor": 13
+        }
         if (rental_type != 'none') {
             var new_loc = []
             var new_loc = all_loc
             rentalData.forEach(function (d) {
                 if (d["name"] != "All") {
                     d["areas"].filter(function (i) {
-                        if (i['type'] == rental_type && parseInt(slider_price) === 100) {
+                        if ((rental_type.indexOf(i['type']) > -1) && parseInt(slider_price) === 100) {
                             if (new_loc.indexOf(i) > -1) {
                                 i["viewType"] = "housing"
                             }
                             return true
                         }
-                        if (i['type'] == rental_type && (i['price'] <= parseInt(slider_price))) {
+                        if ((rental_type.indexOf(i['type']) > -1) && (i['price'] <= parseInt(slider_price))) {
                             if (new_loc.indexOf(i) > -1) {
                                 i["viewType"] = "housing"
                             }
                             return true
+                        }
+                        if ((rental_type.indexOf(i['type']) > -1) && (i['price'] > parseInt(slider_price))) {
+                            count += 1
                         }
                     })
+                }
+                if (count == alldata[rental_type]) {
+                    alert('No matching available rent was found for ' + parseInt(slider_price) + 'CAD in one of the selected housing types, please select a different price or housing type')
                 }
             })
         } else {
             var new_loc = []
             var new_loc = all_loc
-            console.log("only price slider no rental_type")
 
             rentalData.forEach(function (d) {
                 if (d["name"] != "All") {
@@ -469,8 +530,12 @@ function update(rental_type = 'none') {
             .on("mouseover", function (d, i) {
                 tooltip.transition()
                     .duration(200)
+                    .style("width", "auto")
+                    .style("height", "auto")
+                    .style("text-align", "left")
+                    .style("overflow", "auto")
                     .style("opacity", .9);
-                tooltip.html(d.type + ': ' + d.price)
+                tooltip.html(`<div><b>${d.address}<br></b> <b>Housing Type</b>: ${d.type} <br> <b>Rent</b>: ${d.price} CAD<div>`)
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
             })
@@ -481,9 +546,9 @@ function update(rental_type = 'none') {
             })
             .style("fill", function (d) {
                 if (d.viewType == 'housing') {
-                    return "rgb(52, 31, 151, 0.9)"
+                    return housingColor(d.type);
                 } else {
-                    return "#ff9b9b"
+                    return "rgba(254, 202, 87, 0.5)"
                 }
             });
 
@@ -491,67 +556,16 @@ function update(rental_type = 'none') {
     }
 
 };
-// function update(type='none') {
-//     const rental_types = {
-//         1: "Bachelor",
-//         2: "1-Bedroom",
-//         3: "2-Bedroom",
-//         4: "3-Bedroom+"
-//     }
 
-//     var slider_price = document.getElementById("price").value;
-//     d3.select('#price_view').text(slider_price)
-//     var new_loc = []
-    
-//     if (type != 'None') {
-//         rental_type = type
-//         rentalData.forEach(function (d) {
-//             if (d["name"] != "All"){
-//                 d["areas"].filter(function (i) {
-//                     if (i['type'] == type && parseInt(slider_price) === 100) {
-//                         new_loc.push(i)
-//                         return true
-//                     }
-//                     if (i['type'] == type && (i['price'] <= parseInt(slider_price))) {
-//                         new_loc.push(i)
-//                         return true
-//                     }
-//                 })
-//             }
-//         })
-//     } else {
-//         rental_type = rental_types[document.getElementById("rental-type").value]
-//         new_loc = rentalData.filter(function filter_by_price(d) {
-//             if (parseInt(d[rental_type]) <= parseInt(slider_price)) {
-//                 return true;
-//             }
-//         });
-//     }
-
-//     // Render and style circle location marker for each observation in reviews dataset
-//     var circles = g.selectAll("circle")
-//     var join = circles.data(new_loc, function (d) {
-//         return d.id
-//     })
-
-//     var enter = join.enter()
-//     var exit = join.exit()
-
-//     enter.append("circle")
-//         .attr("class", 'map__container' + "_rental_markers")
-//         .attr("cx", function (d) {
-//             return projection([d["Longitude"], d["Latitude"]])[0];
-//         })
-//         .attr("cy", function (d) {
-//             return projection([d["Longitude"], d["Latitude"]])[1];
-//         })
-//         .attr("r", 15)
-//         .style("fill", function (d) {
-//             return rental_color(d)
-//         });
-
-//     exit.remove();
-// };
+function housingColor(c) {
+    return {
+        '3-Bedroom+': 'rgba(34, 47, 62,1.0)',
+        '1-Bedroom': "#ff9ff3",
+        '2-Bedroom': 'rgba(95, 39, 205, 0.7)',
+        'Bachelor': 'rgba(0, 210, 211,1.0)'
+        // 'Bachelor': '#b71540' 
+    }[c];
+}
 
 function drawRentalGraph(data, value) {
     var rentalDetails = []
@@ -629,16 +643,25 @@ function drawRentalGraph(data, value) {
         .attr("y", function (d) {
             return y(d.name);
         })
-        .style("fill", "rgb(52, 31, 151, 0.9)")
+        .attr("kind", function (d) {
+            return d.name;
+        })
+        .attr('active', 'false')
+        .attr('id', "rental-type")
+        .style("fill", function (d) {
+            return housingColor(d.name);
+        })
+        // .style('stroke', )
+        .style("stroke-width", "1px").style("stroke-opacity", 1)
         .on("click", clicked)
         .on("mouseover", function (d, i) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltip.html(d.available + ' available for rent')
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px");
-            })
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9);
+            tooltip.html(`<b>${d.available}</b> houses available for rent`)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        })
         .on("mouseout", function (d, i) {
             tooltip.transition()
                 .duration(500)
@@ -674,13 +697,30 @@ function drawRentalGraph(data, value) {
         .style("font-family", "sans-serif");
 
     function clicked(d) {
-        d3.select(this).attr('id', "rental-type")
-        d3.select(this).attr('active', 'true')
-        update(d.name)
+        var checkStatus = d3.select(this).attr('active')
+        if (checkStatus == 'true') {
+            d3.select(this).attr('active', 'false')
+            allHousing = allHousing.filter(function (n) {
+                return (n != d.name)
+            })
+            d3.select(this).attr('rental_selected', null)
+            d3.select(this).style("stroke-width", "1px").style("stroke-opacity", 1).style("opacity",
+                "1").style('height', "25px")
+            update(allHousing)
+        } else {
+            d3.select(this).attr('rental_selected', 'true')
+            d3.select(this).attr('active', 'true')
+            d3.selectAll('#rental-type').style("stroke-width", "1px").style("stroke-opacity", 1)
+            d3.selectAll('[rental_selected=true]').style('stroke', 'grey').style("stroke-width", "2px").style("stroke-opacity", 1).style('height', "27px").style("opacity", "0.5")
+            allHousing.push(d.name)
+            update(allHousing)
+        }
+        d3.selectAll('#rental-type').style('fill', function (d) {
+            return housingColor(d.name);
+        })
     }
 }
 
-// calculate total frequency by segment for all state.
 var pieData = ['0-14', '15-64', '65+'].map(function (d) {
     return {
         type: d,
@@ -693,27 +733,27 @@ var pC = drawAgeGraph(pieData)
 
 function segColor(c) {
     return {
-        '0-14': "rgba(128, 125, 186, 0.2)",
-        '15-64': "rgba(128, 125, 186, 0.6)",
-        '65+': "rgba(128, 125, 186, 1)"
-    } [c];
+        '0-14': "rgba(29, 209, 161, 1.0)",
+        '15-64': "rgba(84, 160, 255, 1.0)",
+        '65+': "rgba(255, 107, 107, 1.0)"
+    }[c];
 }
 
 function drawAgeGraph(data) {
     var pC = {},
         pieDim = {
-            w: 250,
-            h: 250
+            w: 200,
+            h: 200
         };
     pieDim.r = Math.min(pieDim.w, pieDim.h) / 2;
 
     // create svg for pie chart.
-    var piesvg = d3.select('#age').append("svg")
+    var piesvg = d3.select('#age div.chart').append("svg")
         .attr("width", pieDim.w).attr("height", pieDim.h).append("g")
         .attr("transform", "translate(" + pieDim.w / 2 + "," + pieDim.h / 2 + ")");
 
     // create function to draw the arcs of the pie slices.
-    var arc = d3.arc().outerRadius(pieDim.r - 10).innerRadius(0);
+    var arc = d3.arc().outerRadius(pieDim.r - 20).innerRadius(0);
 
     // create a function to compute the pie slice angles.
     var pie = d3.pie().sort(null).value(function (d) {
@@ -729,7 +769,7 @@ function drawAgeGraph(data) {
             return segColor(d.data.type);
         })
         .on("click", mouseover);
-        // .on("mouseout", mouseout);
+    // .on("mouseout", mouseout);
 
     // create function to update pie-chart. This will be used by histogram.
     pC.update = function (nD) {
@@ -741,31 +781,44 @@ function drawAgeGraph(data) {
     var focused_65 = false
 
     function mouseover(d) {
-        console.log('-im cliecked===')
         if (d.data.type == '0-14') {
             focused_14 = !focused_14
-            if(focused_14 == true){
-                console.log('=======')
-                d3.select(this).attr('stroke', '#fff !important').attr("stroke-width", "5px").attr("stroke-opacity", 1).style("opacity", 0.6).attr('fill', 'purple')
-            }
+            d3.select(this).attr('id', 'age_forteen')
             focused_65 = false
             focused_64 = false
             colorMap = color_14
-            //  = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#f0eff9', '#d7d5ef', '#ccc9ea', '#b9b5e0', '#908dc6', '#918fc4', '#807dba']);
         }
         if (d.data.type == '15-64') {
             focused_64 = !focused_64
+            d3.select(this).attr('id', 'age_sixtyfour')
             focused_65 = false
             focused_14 = false
-            colorMap = color_14
-            // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#ffe3c4', '#ffcd93', '#f9a748', '#efc28d', '#efae62', '#ef9d3e', '#e08214']);
+            colorMap = color_64
         }
         if (d.data.type == '65+') {
             focused_65 = !focused_65
+            d3.select(this).attr('id', 'age_sixtyfive')
             focused_14 = false
             focused_64 = false
-            colorMap = color_14
-            // ethnicColor = d3.scaleThreshold().domain([0, 500, 1000, 10000, 50000, 100000, 500000]).range(['#b2ffc6', '#9cedb1', '#8be0a1', '#81db98', '#79d18f', '#57c173', '#41ab5d']);
+            colorMap = color_65
+        }
+        if (focused_65 && d.data.type == '65+') {
+            d3.select(this).style('stroke', 'grey').style("stroke-width", "4px").style("stroke-opacity", 1).style('opacity', 1)
+        }
+        if (focused_64 && d.data.type == '15-64') {
+            d3.select(this).style('stroke', 'grey').style("stroke-width", "4px").style("stroke-opacity", 1).style('opacity', 1)
+        }
+        if (focused_14 && d.data.type == '0-14') {
+            d3.select(this).style('stroke', 'grey').style("stroke-width", "4px").style("stroke-opacity", 1).style('opacity', 1)
+        }
+        if (!focused_65) {
+            d3.select('#age_sixtyfive').style('fill', 'rgba(255, 107, 107, 1.0)').style("stroke-opacity", 0)
+        }
+        if (!focused_64) {
+            d3.select('#age_sixtyfour').style('fill', 'rgba(84, 160, 255, 1.0)').style("stroke-opacity", 0)
+        }
+        if (!focused_14) {
+            d3.select('#age_forteen').style('fill', 'rgba(29, 209, 161, 1.0)').style("stroke-opacity", 0)
         }
         defaultView = false
         addDensity(d.data, 'age')
@@ -814,7 +867,7 @@ function ageLegend(lD, show) {
     var leg = {};
 
     // create table for legend.
-    var legendage = d3.select('#age').append("table").attr('class', 'legend');
+    var legendage = d3.select('#age div.table1').append("table").attr('class', 'legend');
 
     // create one row per segment.
     var tr = legendage.append("tbody").selectAll("tr").data(lD).enter().append("tr");
